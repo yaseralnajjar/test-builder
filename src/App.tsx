@@ -2,6 +2,7 @@ import { Formik, Form, FieldArray, Field } from "formik";
 import { useEffect, useState } from "react";
 
 function App() {
+  const [textStr, setTextStr] = useState("");
   const [jsonStr, setJsonStr] = useState("");
   const [jsonParseError, setJsonParseError] = useState("");
 
@@ -13,9 +14,45 @@ function App() {
             setJsonStr(JSON.stringify(values.inputGroups, null, 2));
           }, [values]);
 
+          useEffect(() => {
+            setTextStr(
+              values.inputGroups
+                .map(
+                  (group) =>
+                    `firstInput: ${group.firstInput}, secondInput: ${group.secondInput}`
+                )
+                .join("\n")
+            );
+          }, [values]);
+
           return (
             <div className="flex flex-1">
-              {/* Left Part */}
+              {/* Left Part: Text Edit */}
+              <div className="flex-1 border-r-2 border-gray-400 p-4">
+                <textarea
+                  className="w-full h-full border rounded p-2"
+                  value={textStr}
+                  onChange={(e) => {
+                    setTextStr(e.target.value);
+                    const lines = e.target.value.trim().split("\n");
+                    const inputGroups = lines.map((line) => {
+                      const firstInputMatch = line.match(/firstInput: ([^,]+)/);
+                      const secondInputMatch = line.match(/secondInput: (.+)/);
+                      return {
+                        firstInput: firstInputMatch
+                          ? firstInputMatch[1].trim()
+                          : "",
+                        secondInput: secondInputMatch
+                          ? secondInputMatch[1].trim()
+                          : "",
+                      };
+                    });
+                    setValues({ inputGroups });
+                  }}
+                ></textarea>
+              </div>
+
+              {/* Center Part: Control Inputs */}
               <div className="flex-1 border-r-2 border-gray-400 p-4">
                 <Form>
                   <FieldArray name="inputGroups">
@@ -103,7 +140,7 @@ function App() {
                 </Form>
               </div>
 
-              {/* Right Part */}
+              {/* Right Part: JSON Display */}
               <div className="flex-1 p-4 overflow-auto">
                 {jsonParseError && (
                   <p className="text-red-500">{jsonParseError}</p>
