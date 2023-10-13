@@ -1,6 +1,115 @@
 import { Formik, Form, FieldArray, Field } from "formik";
 import { useEffect, useState } from "react";
 
+function parseMarkdownToQuestion(markdown) {
+  const lines = markdown.split("\n");
+
+  const isHeadline = (line, keyword) => {
+    const trimmed = line.trim();
+    return [
+      `## **${keyword}**`,
+      `## **${keyword}:**`,
+      `### **${keyword}**`,
+      `### **${keyword}:**`,
+      `**${keyword}**`,
+      `**${keyword}:**`,
+    ].includes(trimmed);
+  };
+
+  const startsWithAnswer = (line) => {
+    const trimmed = line.trim();
+    return [
+      ...["A.", "B.", "C.", "D.", "E.", "F.", "G.", "H.", "I.", "J."].map(
+        (letter) => `**${letter}`
+      ),
+      ...["A.", "B.", "C.", "D.", "E.", "F.", "G.", "H.", "I.", "J."],
+      ...["A.", "B.", "C.", "D.", "E.", "F.", "G.", "H.", "I.", "J."].map(
+        (letter) => `**${letter}**`
+      ),
+    ].some((prefix) => trimmed.startsWith(prefix));
+  };
+
+  const getAnswerText = (line) => {
+    let strippedLine = line.trim();
+    if (startsWithAnswer(strippedLine)) {
+      const prefixLength = strippedLine.startsWith("**")
+        ? strippedLine[3] === "*"
+          ? 5
+          : 4
+        : 2;
+      strippedLine = strippedLine.slice(prefixLength).trim();
+    }
+    return strippedLine.replace(/^\*\*|\*\*$/g, "").trim(); // Remove bolding if it exists and trim
+  };
+
+  let parsingState = "none";
+  let questionText = "";
+  let answers = [];
+  let correctAnswer = null;
+  let currentAnswer = null;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    switch (parsingState) {
+      case "none":
+        if (isHeadline(line, "Question")) {
+          parsingState = "question";
+        }
+        break;
+      case "question":
+        if (isHeadline(line, "Answers")) {
+          parsingState = "answers";
+        } else {
+          questionText += line + "\n";
+        }
+        break;
+      case "answers":
+        if (isHeadline(line, "Correct Answer")) {
+          parsingState = "correctAnswer";
+          if (currentAnswer) {
+            answers.push(getAnswerText(currentAnswer));
+            currentAnswer = null;
+          }
+        } else if (startsWithAnswer(line)) {
+          if (currentAnswer) {
+            answers.push(getAnswerText(currentAnswer));
+          }
+          currentAnswer = line;
+        } else if (currentAnswer !== null) {
+          currentAnswer += "\n" + line;
+        }
+        break;
+      case "correctAnswer":
+        const match = line.trim().match(/^([A-Za-z])[\.]?/); // parse A. or B. or C
+        if (match) {
+          correctAnswer = match[1].toUpperCase();
+          break;
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  if (currentAnswer) {
+    answers.push(getAnswerText(currentAnswer));
+  }
+
+  if (!questionText || !answers.length || !correctAnswer) {
+    throw new Error(`Parsing markdown question exception:\n${markdown}`);
+  }
+
+  return {
+    text: questionText.trim(),
+    answers: answers.map((text, index) => ({
+      text,
+      is_correct: String.fromCharCode(65 + index) === correctAnswer,
+    })),
+    correctAnswer,
+  };
+}
+
 function TextEditor({ value, onUpdate, activeQuestionIndex }) {
   const [localValue, setLocalValue] = useState(value);
 
@@ -11,37 +120,10 @@ function TextEditor({ value, onUpdate, activeQuestionIndex }) {
   const handleChange = (e) => {
     setLocalValue(e.target.value);
 
-    const newValue = e.target.value;
+    const parsedQuestion = parseMarkdownToQuestion(e.target.value);
 
-    const questionMatch = newValue.match(
-      /(?<=\*\*Question\*\*\n)([\s\S]+?)(?=\n\*\*Answers\*\*)/
-    );
-    const answersMatch = newValue.match(
-      /(?<=\*\*Answers\*\*\n)([\s\S]+?)(?=\n\*\*Correct Answer\*\*)/
-    );
-    const correctAnswerMatch = newValue.match(
-      /(?<=\*\*Correct Answer\*\*\n)([A-D])/
-    );
-
-    if (questionMatch && answersMatch && correctAnswerMatch) {
-      const questionText = questionMatch[1].trim();
-      const answers = answersMatch[1]
-        .split("\n")
-        .map((a) => a.replace(/^[A-Z]\.\s*/, "").trim()) // Remove prefixing letter and dot
-        .filter((a) => a); // Filter out empty answers
-
-      const correctAnswerLetter = correctAnswerMatch[1].trim();
-
-      const question = {
-        text: questionText,
-        answers: answers.map((text, index) => ({
-          text,
-          is_correct: String.fromCharCode(65 + index) === correctAnswerLetter,
-        })),
-        correctAnswer: correctAnswerLetter,
-      };
-
-      onUpdate(question, activeQuestionIndex);
+    if (parsedQuestion) {
+      onUpdate(parsedQuestion, activeQuestionIndex);
     }
   };
 
