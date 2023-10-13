@@ -1,115 +1,135 @@
 import { Formik, Form, FieldArray, Field } from "formik";
 import { useEffect, useState } from "react";
 
-function TextEditor({ value, onUpdate }) {
+function TextEditor({ value, onUpdate, activeQuestionIndex }) {
+  const [localValue, setLocalValue] = useState(value);
+
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
   const handleChange = (e) => {
+    setLocalValue(e.target.value);
+
     const newValue = e.target.value;
-    const questions = [];
 
-    const sections = newValue
-      .split(/(?=---\s*(?:---)?)/) // This splits using --- or ---\n---
-      .map((s) => s.trim())
-      .filter(Boolean); // Filter out empty strings
+    const questionMatch = newValue.match(
+      /(?<=\*\*Question\*\*\n)([\s\S]+?)(?=\n\*\*Answers\*\*)/
+    );
+    const answersMatch = newValue.match(
+      /(?<=\*\*Answers\*\*\n)([\s\S]+?)(?=\n\*\*Correct Answer\*\*)/
+    );
+    const correctAnswerMatch = newValue.match(
+      /(?<=\*\*Correct Answer\*\*\n)([A-D])/
+    );
 
-    sections.forEach((section) => {
-      const questionMatch = section.match(
-        /### \*\*Question:\*\*\s*\n([\s\S]+?)\n### \*\*Answers:\*\*/
-      );
-      const answersMatch = section.match(
-        /### \*\*Answers:\*\*\s*\n([\s\S]+?)\n### \*\*Correct Answer:\*\*/
-      );
-      const correctAnswerMatch = section.match(
-        /### \*\*Correct Answer:\*\*\s*\n([A-D])\./
-      );
+    if (questionMatch && answersMatch && correctAnswerMatch) {
+      const questionText = questionMatch[1].trim();
+      const answers = answersMatch[1]
+        .split("\n")
+        .map((a) => a.replace(/^[A-Z]\.\s*/, "").trim()) // Remove prefixing letter and dot
+        .filter((a) => a); // Filter out empty answers
 
-      if (questionMatch && answersMatch && correctAnswerMatch) {
-        questions.push({
-          text: questionMatch[1].trim(),
-          answers: answersMatch[1]
-            .split(/\n[A-D]\./) // Split answers by newline followed by letter and dot
-            .map((a) => ({ text: a.trim() }))
-            .filter((a) => a.text), // Filter out empty answers
-          correctAnswer: correctAnswerMatch[1].trim(),
-        });
-      }
-    });
+      const correctAnswer = correctAnswerMatch[1].trim();
 
-    onUpdate(questions);
+      const question = {
+        text: questionText,
+        answers: answers.map((text) => ({ text })),
+        correctAnswer,
+      };
+
+      console.log(question);
+
+      onUpdate(question, activeQuestionIndex);
+    }
   };
 
   return (
     <textarea
       className="w-full h-full border rounded p-2"
-      value={value}
+      value={localValue}
       onChange={handleChange}
     ></textarea>
   );
 }
 
-function QuestionEditor({ questions }) {
+function QuestionEditor({
+  questions,
+  setActiveQuestionIndex,
+  activeQuestionIndex,
+}) {
   return (
     <Form>
       <FieldArray name="questions">
         {({ push, remove }) => (
           <div>
             {questions.map((_, index) => (
-              <div key={index} className="mb-4">
-                <div className="mb-2">
-                  <Field
-                    className="w-full p-1 border rounded"
-                    name={`questions[${index}].text`}
-                    placeholder="Question"
-                  />
+              <div
+                key={index}
+                className={`mb-4 ${
+                  index === activeQuestionIndex ? "bg-blue-100" : ""
+                }`}
+                onClick={() => setActiveQuestionIndex(index)}
+              >
+                <div key={index} className="mb-4">
+                  <div className="mb-2">
+                    <Field
+                      className="w-full p-1 border rounded"
+                      name={`questions[${index}].text`}
+                      placeholder="Question"
+                    />
+                  </div>
+                  <FieldArray name={`questions[${index}].answers`}>
+                    {({ push: pushAnswer, remove: removeAnswer }) => (
+                      <div>
+                        {_.answers.map((answer, aIndex) => (
+                          <div key={aIndex} className="flex items-center mb-2">
+                            <Field
+                              className="flex-1 p-1 border rounded mr-2"
+                              name={`questions[${index}].answers[${aIndex}].text`}
+                              placeholder="Answer"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeAnswer(aIndex)}
+                            >
+                              X
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          className="mb-2"
+                          onClick={() => pushAnswer({ text: "" })}
+                        >
+                          Add Answer
+                        </button>
+                      </div>
+                    )}
+                  </FieldArray>
+                  <div className="mb-2">
+                    <Field
+                      className="w-full p-1 border rounded"
+                      name={`questions[${index}].correctAnswer`}
+                      placeholder="Correct Answer"
+                    />
+                  </div>
+                  <button type="button" onClick={() => remove(index)}>
+                    Remove Question
+                  </button>
                 </div>
-                <FieldArray name={`questions[${index}].answers`}>
-                  {({ push: pushAnswer, remove: removeAnswer }) => (
-                    <div>
-                      {_.answers.map((answer, aIndex) => (
-                        <div key={aIndex} className="flex items-center mb-2">
-                          <Field
-                            className="flex-1 p-1 border rounded mr-2"
-                            name={`questions[${index}].answers[${aIndex}].text`}
-                            placeholder="Answer"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeAnswer(aIndex)}
-                          >
-                            X
-                          </button>
-                        </div>
-                      ))}
-                      <button
-                        type="button"
-                        className="mb-2"
-                        onClick={() => pushAnswer({ text: "" })}
-                      >
-                        Add Answer
-                      </button>
-                    </div>
-                  )}
-                </FieldArray>
-                <div className="mb-2">
-                  <Field
-                    className="w-full p-1 border rounded"
-                    name={`questions[${index}].correctAnswer`}
-                    placeholder="Correct Answer"
-                  />
-                </div>
-                <button type="button" onClick={() => remove(index)}>
-                  Remove Question
-                </button>
               </div>
             ))}
             <button
               type="button"
-              onClick={() =>
+              onClick={() => {
                 push({
                   text: "",
                   answers: [{ text: "" }],
                   correctAnswer: "",
-                })
-              }
+                });
+                setActiveQuestionIndex(questions.length);
+              }}
             >
               Add Question
             </button>
@@ -143,17 +163,25 @@ function JsonEditor({ value, onUpdate }) {
 
 function questionsToMarkdown(questions) {
   return questions
-    .map(
-      (question) => `**Question**
+    .map((question) => {
+      const answers = question.answers
+        .map((a, index) => {
+          // Convert 0 to A, 1 to B, 2 to C, etc.
+          const ASCII_A = 65;
+          const letter = String.fromCharCode(ASCII_A + index);
+          return `${letter}. ${a.text}`;
+        })
+        .join("\n");
+
+      return `**Question**
 ${question.text}
 
 **Answers**
-${question.answers.map((a) => a.text).join("\n")}
+${answers}
 
 **Correct Answer**
-${question.correctAnswer}
----`
-    )
+${question.correctAnswer}`;
+    })
     .join("\n\n");
 }
 
@@ -178,37 +206,51 @@ function questionsToJson(questions) {
 function App() {
   const [textStr, setTextStr] = useState("");
   const [jsonStr, setJsonStr] = useState("");
+  const [activeQuestionIndex, setActiveQuestionIndex] = useState(-1); // initial value to -1 which means no question is active
+
+  const handleQuestionUpdate = (question, index, setFieldValue) => {
+    setFieldValue(`questions[${index}]`, question);
+  };
 
   return (
     <div className="min-h-screen flex">
       <Formik initialValues={{ questions: [] }} onSubmit={() => {}}>
-        {({ values, setValues }) => {
+        {({ values, setFieldValue }) => {
           useEffect(() => {
-            setTextStr(questionsToMarkdown(values.questions));
+            const question = values.questions[activeQuestionIndex];
+            if (question) {
+              setTextStr(questionsToMarkdown([question]));
+            } else {
+              setTextStr("");
+            }
             setJsonStr(questionsToJson(values.questions));
-          }, [values]);
+          }, [values, activeQuestionIndex]);
 
           return (
             <div className="flex flex-1">
-              {/* Left Part: Text Edit */}
               <div className="flex-1 border-r-2 border-gray-400 p-4">
                 <TextEditor
                   value={textStr}
-                  onUpdate={(questions) => setValues({ questions })}
+                  onUpdate={(question, index) =>
+                    handleQuestionUpdate(question, index, setFieldValue)
+                  }
+                  activeQuestionIndex={activeQuestionIndex}
                 />
               </div>
 
-              {/* Center Part: Control Inputs */}
               <div className="flex-1 border-r-2 border-gray-400 p-4">
-                <QuestionEditor questions={values.questions} />
+                <QuestionEditor
+                  questions={values.questions}
+                  setActiveQuestionIndex={setActiveQuestionIndex}
+                  activeQuestionIndex={activeQuestionIndex}
+                />
               </div>
 
-              {/* Right Part: JSON Display */}
               <div className="flex-1 p-4 overflow-auto">
                 <JsonEditor
                   value={jsonStr}
                   onUpdate={(data) => {
-                    setValues({ questions: data.questions });
+                    setFieldValue("questions", data.questions);
                   }}
                 />
               </div>
