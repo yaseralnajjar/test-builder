@@ -30,15 +30,16 @@ function TextEditor({ value, onUpdate, activeQuestionIndex }) {
         .map((a) => a.replace(/^[A-Z]\.\s*/, "").trim()) // Remove prefixing letter and dot
         .filter((a) => a); // Filter out empty answers
 
-      const correctAnswer = correctAnswerMatch[1].trim();
+      const correctAnswerLetter = correctAnswerMatch[1].trim();
 
       const question = {
         text: questionText,
-        answers: answers.map((text) => ({ text })),
-        correctAnswer,
+        answers: answers.map((text, index) => ({
+          text,
+          is_correct: String.fromCharCode(65 + index) === correctAnswerLetter,
+        })),
+        correctAnswer: correctAnswerLetter,
       };
-
-      console.log(question);
 
       onUpdate(question, activeQuestionIndex);
     }
@@ -141,8 +142,16 @@ function QuestionEditor({
 }
 
 function JsonEditor({ value, onUpdate }) {
+  const [localValue, setLocalValue] = useState(value);
+
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
   const handleChange = (e) => {
     const newValue = e.target.value;
+
+    setLocalValue(newValue);
 
     try {
       const parsedData = JSON.parse(newValue);
@@ -155,7 +164,7 @@ function JsonEditor({ value, onUpdate }) {
   return (
     <textarea
       className="w-full h-full border rounded p-2"
-      value={value}
+      value={localValue}
       onChange={handleChange}
     ></textarea>
   );
@@ -192,9 +201,10 @@ function questionsToJson(questions) {
       duration: 60,
       questions: questions.map((question) => ({
         text: question.text,
-        answers: question.answers.map((a) => ({
+        answers: question.answers.map((a, index) => ({
           text: a.text,
-          is_correct: a.text === question.correctAnswer,
+          is_correct:
+            question.correctAnswer === String.fromCharCode(65 + index),
         })),
       })),
     },
