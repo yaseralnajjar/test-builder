@@ -144,7 +144,7 @@ function QuestionEditor({
   return (
     <Form>
       <FieldArray name="questions">
-        {({ push, remove }) => (
+        {({ push, remove, move }) => (
           <div>
             {questions.map((_, index) => (
               <div
@@ -200,13 +200,38 @@ function QuestionEditor({
                       placeholder="Correct Answer"
                     />
                   </div>
-                  <button
-                    type="button"
-                    className="mr-2 px-2 py-1 hover:bg-red-500 bg-red-300 text-white hover:text-white rounded transition duration-300"
-                    onClick={() => remove(index)}
-                  >
-                    Remove Question
-                  </button>
+                  <div className="flex items-center">
+                    {/* Move Up Button */}
+                    {index > 0 && (
+                      <button
+                        type="button"
+                        className="mr-2 px-2 py-1 bg-transparent hover:bg-blue-500 text-blue-700 hover:text-white border border-blue-500 hover:border-transparent rounded"
+                        onClick={() => move(index, index - 1)}
+                      >
+                        Move Up
+                      </button>
+                    )}
+
+                    {/* Move Down Button */}
+                    {index < questions.length - 1 && (
+                      <button
+                        type="button"
+                        className="mr-2 px-2 py-1 bg-transparent hover:bg-blue-500 text-blue-700 hover:text-white border border-blue-500 hover:border-transparent rounded"
+                        onClick={() => move(index, index + 1)}
+                      >
+                        Move Down
+                      </button>
+                    )}
+
+                    {/* Remove Button (pre-existing in your code) */}
+                    <button
+                      type="button"
+                      className="ml-2 px-2 py-1 hover:bg-red-500 bg-red-300 text-white hover:text-white rounded transition duration-300"
+                      onClick={() => remove(index)}
+                    >
+                      Remove Question
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
