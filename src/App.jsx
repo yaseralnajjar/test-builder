@@ -149,7 +149,7 @@ function QuestionEditor({
             {questions.map((_, index) => (
               <div
                 key={index}
-                className={`mb-4 ${
+                className={`mb-4 p-4 border border-gray-300 rounded ${
                   index === activeQuestionIndex ? "bg-blue-100" : ""
                 }`}
                 onClick={() => setActiveQuestionIndex(index)}
@@ -157,6 +157,7 @@ function QuestionEditor({
                 <div key={index} className="mb-4">
                   <div className="mb-2">
                     <Field
+                      as="textarea"
                       className="w-full p-1 border rounded"
                       name={`questions[${index}].text`}
                       placeholder="Question"
@@ -168,12 +169,14 @@ function QuestionEditor({
                         {_.answers.map((answer, aIndex) => (
                           <div key={aIndex} className="flex items-center mb-2">
                             <Field
+                              as="textarea"
                               className="flex-1 p-1 border rounded mr-2"
                               name={`questions[${index}].answers[${aIndex}].text`}
                               placeholder="Answer"
                             />
                             <button
                               type="button"
+                              className="mr-2 px-2 py-1 bg-transparent hover:bg-red-300  text-red-500 hover:text-white border border-red-500 hover:border-transparent rounded transition duration-300"
                               onClick={() => removeAnswer(aIndex)}
                             >
                               X
@@ -182,7 +185,7 @@ function QuestionEditor({
                         ))}
                         <button
                           type="button"
-                          className="mb-2"
+                          className="mb-2 px-2 py-1 bg-transparent hover:bg-blue-500 text-blue-700 hover:text-white border border-blue-500 hover:border-transparent rounded transition duration-300"
                           onClick={() => pushAnswer({ text: "" })}
                         >
                           Add Answer
@@ -197,25 +200,32 @@ function QuestionEditor({
                       placeholder="Correct Answer"
                     />
                   </div>
-                  <button type="button" onClick={() => remove(index)}>
+                  <button
+                    type="button"
+                    className="mr-2 px-2 py-1 hover:bg-red-500 bg-red-300 text-white hover:text-white rounded transition duration-300"
+                    onClick={() => remove(index)}
+                  >
                     Remove Question
                   </button>
                 </div>
               </div>
             ))}
-            <button
-              type="button"
-              onClick={() => {
-                push({
-                  text: "",
-                  answers: [{ text: "" }],
-                  correctAnswer: "",
-                });
-                setActiveQuestionIndex(questions.length);
-              }}
-            >
-              Add Question
-            </button>
+            <div className="flex justify-center mt-4 mb-4">
+              <button
+                type="button"
+                className="px-2 py-1 bg-transparent hover:bg-blue-500 text-blue-700 hover:text-white border border-blue-500 hover:border-transparent rounded transition duration-300"
+                onClick={() => {
+                  push({
+                    text: "",
+                    answers: [{ text: "" }],
+                    correctAnswer: "",
+                  });
+                  setActiveQuestionIndex(questions.length);
+                }}
+              >
+                Add Question
+              </button>
+            </div>
           </div>
         )}
       </FieldArray>
