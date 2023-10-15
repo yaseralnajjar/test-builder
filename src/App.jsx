@@ -335,6 +335,8 @@ function App() {
   const [textStr, setTextStr] = useState("");
   const [jsonStr, setJsonStr] = useState("");
   const [activeQuestionIndex, setActiveQuestionIndex] = useState(-1); // initial value to -1 which means no question is active
+  const [isTextEditorVisible, setIsTextEditorVisible] = useState(true);
+  const [isJsonEditorVisible, setIsJsonEditorVisible] = useState(true);
 
   const handleQuestionUpdate = (question, index, setFieldValue) => {
     setFieldValue(`questions[${index}]`, question);
@@ -356,15 +358,40 @@ function App() {
 
           return (
             <div className="flex flex-1">
-              <div className="flex-1 border-r-2 border-gray-400 p-4">
-                <TextEditor
-                  value={textStr}
-                  onUpdate={(question, index) =>
-                    handleQuestionUpdate(question, index, setFieldValue)
-                  }
-                  activeQuestionIndex={activeQuestionIndex}
-                />
-              </div>
+              <>
+                {!isTextEditorVisible && (
+                  <button
+                    onClick={() => setIsTextEditorVisible(!isTextEditorVisible)}
+                    className="flex flex-col items-center justify-center bg-blue-500 text-white font-bold p-2 fixed top-2 left-2 rounded"
+                  >
+                    <span className="text-sm">
+                      {isTextEditorVisible ? "Hide" : "Show"}
+                    </span>
+                  </button>
+                )}
+
+                {isTextEditorVisible && (
+                  <div className="flex-1 border-r-2 border-gray-400 p-4 relative">
+                    <button
+                      onClick={() =>
+                        setIsTextEditorVisible(!isTextEditorVisible)
+                      }
+                      className="flex flex-col items-center justify-center bg-blue-500 text-white font-bold p-2 absolute top-2 right-2 rounded"
+                    >
+                      <span className="text-sm">Hide</span>
+                    </button>
+                    <div>
+                      <TextEditor
+                        value={textStr}
+                        onUpdate={(question, index) =>
+                          handleQuestionUpdate(question, index, setFieldValue)
+                        }
+                        activeQuestionIndex={activeQuestionIndex}
+                      />
+                    </div>
+                  </div>
+                )}
+              </>
 
               <div className="flex-1 border-r-2 border-gray-400 p-4">
                 <QuestionEditor
@@ -374,14 +401,36 @@ function App() {
                 />
               </div>
 
-              <div className="flex-1 p-4 overflow-auto">
-                <JsonEditor
-                  value={jsonStr}
-                  onUpdate={(data) => {
-                    setFieldValue("questions", data.questions);
-                  }}
-                />
-              </div>
+              <>
+                {!isJsonEditorVisible && (
+                  <button
+                    onClick={() => setIsJsonEditorVisible(!isJsonEditorVisible)}
+                    className="flex flex-col items-center justify-center bg-blue-500 text-white font-bold p-2 fixed top-2 right-2 rounded"
+                  >
+                    <span className="text-sm">Show</span>
+                  </button>
+                )}
+
+                {isJsonEditorVisible && (
+                  <div className="flex-1 p-4 overflow-auto relative">
+                    {" "}
+                    <button
+                      onClick={() =>
+                        setIsJsonEditorVisible(!isJsonEditorVisible)
+                      }
+                      className="flex flex-col items-center justify-center bg-blue-500 text-white font-bold p-2 absolute top-2 left-2 rounded"
+                    >
+                      <span className="text-sm">Hide</span>
+                    </button>
+                    <JsonEditor
+                      value={jsonStr}
+                      onUpdate={(data) => {
+                        setFieldValue("questions", data.questions);
+                      }}
+                    />
+                  </div>
+                )}
+              </>
             </div>
           );
         }}
