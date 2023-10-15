@@ -1,0 +1,165 @@
+**Question**
+How does git handle code reviews?
+
+**Answers**
+A. Git automatically reviews and suggests changes to the code.
+B. Git sends an email to reviewers with the code attached.
+C. Git does not have a built-in mechanism for code reviews.
+D. Git requires approval from senior developers before committing any code.
+E. Hello
+
+**Correct Answer**
+C
+
+---
+
+**Question**
+Consider the following HTML and CSS code. What color will the text within the **`div`** element with **`id="header"`** and **`class="highlight"`** be?
+
+```html
+<!DOCTYPE html>
+```
+
+**Answers**
+A. Git automatically reviews and suggests changes to the code.
+B. Git sends an email to reviewers with the code attached.
+C. Git does not have a built-in mechanism for code reviews.
+D. Git requires approval from senior developers before committing any code.
+E. Hello
+
+**Correct Answer**
+C
+
+---
+
+**Question:**
+Consider the following HTML and CSS code. What color will the text within the **`div`** element with **`id="header"`** and **`class="highlight"`** be?
+
+```html
+<!DOCTYPE html>
+```
+
+**Answers:**
+
+A. Red because the **`div`** selector targets all **`div`** elements, applying the red color to them.
+B. Green because the ID selector **`#header`** has higher specificity than class and type selectors.
+C. Green because the element with the ID **`header`** is styled with green as per the browser's default stylesheet.
+D. Blue because the **`.highlight`** class selector will apply the blue color to elements with this class.
+E. Purple because the **`div.highlight`** selector has higher specificity than all other selectors due to being a combined selector.
+F. Purple due to the cascading nature of CSS where the last defined rule takes precedence.
+
+**Correct Answer:**
+E.
+
+---
+
+**Question:**
+Consider the following HTML and CSS code. What color will the text within the **`div`** element with **`id="header"`** and **`class="highlight"`** be?
+
+```html
+<!DOCTYPE html>
+```
+
+**Answers:**
+
+**A.** Red because the **`div`** selector targets all **`div`** elements, applying the red color to them.
+**B.** Green because the ID selector **`#header`** has higher specificity than class and type selectors.
+**C.** Green because the element with the ID **`header`** is styled with green as per the browser's default stylesheet.
+**D.** Blue because the **`.highlight`** class selector will apply the blue color to elements with this class.
+**E.** Purple because the **`div.highlight`** selector has higher specificity than all other selectors due to being a combined selector.
+
+**F.** Purple due to the cascading nature of CSS where the last defined rule takes precedence.
+
+**Correct Answer:**
+E.
+
+
+---
+
+### **Question:**
+
+In the JavaScript code below, what occurs when the **`createMultiplier`** function is invoked and the returned function (assigned to **`double`** and **`triple`**) is later called?
+
+```jsx
+function createMultiplier(factor) {
+  return function (number) {
+    return number * factor;
+  };
+}
+
+const double = createMultiplier(2);
+const triple = createMultiplier(3);
+
+console.log(double(5));
+console.log(triple(5));
+```
+
+### **Answers:**
+
+A. **`createMultiplier`** function generates errors since **`factor`** is not defined in the returned function's scope.
+
+B. **`createMultiplier`** returns a function that, when called as **`double(5)`** or **`triple(5)`**, multiplies the input by the **`factor`** provided during the **`createMultiplier`** invocation due to closures.
+
+C. **`double(5)`** and **`triple(5)`** will both return **`undefined`** because the **`factor`** variable is not accessible from the returned function.
+
+D. **`createMultiplier`** re-executes each time **`double`** or **`triple`** is called, with **`factor`** being redefined during each call.
+
+### **Correct Answer:**
+B.
+
+---
+
+**Question:**
+Given the following HTML and CSS code, a developer is attempting to change the button color smoothly when hovered over, but the transition isn't working as expected.
+
+Identify the issue and provide the correct code to implement a smooth transition of the button’s color when hovered over.
+
+```html
+<!DOCTYPE html>
+<body>
+  <button class="button">Click Me</button>
+</body>
+</html>
+```
+
+**Answers:**
+
+**A.** The transition is applied to **`background-color`**, but the hover effect changes **`color`**.
+
+```css
+.button:hover {
+  background-color: red;
+}
+```
+
+**B.** The **`transition`** property is applied to the wrong class.
+
+```css
+.button:hover {
+  transition: color 0.5s;
+  color: red;
+}
+```
+
+**C.** The **`transition`** property is missing the **`ease-in-out`** value.
+
+```css
+.button {
+  transition: background-color 0.5s ease-in-out;
+}
+```
+
+**D.** The **`:hover`** pseudo-class is not activated because it is applied to the wrong element.
+Solution:
+
+```css
+button:hover .button {
+  background-color: red;
+}
+```
+
+**Correct Answer:**
+A.
+
+---
+
