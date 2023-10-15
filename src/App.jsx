@@ -43,7 +43,7 @@ function parseMarkdownToQuestion(markdown) {
   };
 
   const startsWithAnswer = (line) => {
-    const trimmed = line.trim();
+    const trimmed = line.trim().toUpperCase();
     return [
       ...["A.", "B.", "C.", "D.", "E.", "F.", "G.", "H.", "I.", "J."].map(
         (letter) => `**${letter}`
@@ -52,7 +52,7 @@ function parseMarkdownToQuestion(markdown) {
       ...["A.", "B.", "C.", "D.", "E.", "F.", "G.", "H.", "I.", "J."].map(
         (letter) => `**${letter}**`
       ),
-    ].some((prefix) => trimmed.startsWith(prefix));
+    ].some((prefix) => trimmed.startsWith(prefix.toUpperCase()));
   };
 
   const getAnswerText = (line) => {
