@@ -6,14 +6,40 @@ function parseMarkdownToQuestion(markdown) {
 
   const isHeadline = (line, keyword) => {
     const trimmed = line.trim();
-    return [
-      `## **${keyword}**`,
-      `## **${keyword}:**`,
-      `### **${keyword}**`,
-      `### **${keyword}:**`,
-      `**${keyword}**`,
-      `**${keyword}:**`,
-    ].includes(trimmed);
+    const formats = [`## **${keyword}`, `### **${keyword}`, `**${keyword}`];
+
+    // Check if line starts with any of the standard formats:
+    // ## **Question**
+    // ## **Question:**
+    // ### **Question**
+    // ### **Question:**
+    // **Question**
+    // **Question:**
+    // Or there could be the question number:
+    // ## **Question 1**
+    // ## **Question 1:**
+    // ### **Question 1**
+    // ### **Question 1:**
+    // **Question 1**
+    // **Question 1:**
+
+    for (const format of formats) {
+      if (trimmed.startsWith(format)) {
+        if (trimmed.endsWith("**") || trimmed.endsWith(":**")) {
+          return true;
+        }
+
+        const remainder = trimmed.slice(format.length).trim();
+        if (
+          /^(\d{1,2})\**$/.test(remainder) ||
+          /^(\d{1,2}):\**$/.test(remainder)
+        ) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   };
 
   const startsWithAnswer = (line) => {
