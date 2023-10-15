@@ -419,7 +419,7 @@ function App() {
                 )}
               </>
 
-              <div className="flex-1 border-r-2 border-gray-400 p-4">
+              <div className="flex-1 border-r-2 border-gray-400 p-4 max-h-screen overflow-y-auto">
                 <QuestionEditor
                   questions={values.questions}
                   setActiveQuestionIndex={setActiveQuestionIndex}
