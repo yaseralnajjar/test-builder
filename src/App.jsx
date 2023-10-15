@@ -406,15 +406,13 @@ function App() {
                     >
                       <span className="text-sm">Hide</span>
                     </button>
-                    <div>
-                      <TextEditor
-                        value={textStr}
-                        onUpdate={(question, index) =>
-                          handleQuestionUpdate(question, index, setFieldValue)
-                        }
-                        activeQuestionIndex={activeQuestionIndex}
-                      />
-                    </div>
+                    <TextEditor
+                      value={textStr}
+                      onUpdate={(question, index) =>
+                        handleQuestionUpdate(question, index, setFieldValue)
+                      }
+                      activeQuestionIndex={activeQuestionIndex}
+                    />
                   </div>
                 )}
               </>
