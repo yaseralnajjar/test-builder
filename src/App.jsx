@@ -154,6 +154,7 @@ function QuestionEditor({
                 }`}
                 onClick={() => setActiveQuestionIndex(index)}
               >
+                <div className="mb-4 font-bold">Question {index + 1}</div>
                 <div key={index} className="mb-4">
                   <div className="mb-2">
                     <Field
