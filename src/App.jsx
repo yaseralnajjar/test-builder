@@ -1,5 +1,5 @@
 import { Formik, Form, FieldArray, Field } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 function parseMarkdownToQuestion(markdown) {
   const lines = markdown.split("\n");
@@ -200,11 +200,25 @@ function QuestionEditor({
   setActiveQuestionIndex,
   activeQuestionIndex,
 }) {
+  const editorRef = useRef(null);
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      if (editorRef.current) {
+        editorRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "end",
+          inline: "nearest",
+        });
+      }
+    }, 100);
+  };
+
   return (
     <Form>
       <FieldArray name="questions">
         {({ push, remove, move }) => (
-          <div>
+          <div ref={editorRef}>
             {questions.map((_, index) => (
               <div
                 key={index}
@@ -306,6 +320,7 @@ function QuestionEditor({
                     correctAnswer: "",
                   });
                   setActiveQuestionIndex(questions.length);
+                  scrollToBottom();
                 }}
               >
                 Add Question
