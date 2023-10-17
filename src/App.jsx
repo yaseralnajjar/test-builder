@@ -5,7 +5,8 @@ function parseMarkdownToQuestion(markdown) {
   const lines = markdown.split("\n");
 
   const isHeadline = (line, keyword) => {
-    const trimmed = line.trim();
+    const trimmed = line.trim().toLowerCase();
+    keyword = keyword.toLowerCase();
     const formats = [
       `## **${keyword}`,
       `### **${keyword}`,
