@@ -163,3 +163,20 @@ A.
 
 ---
 
+### Question 6:
+
+Which one of the following statements is true regarding the `map`, `filter`, and `reduce` methods in JavaScript?
+
+### Answers:
+
+A. **`map`** and **`filter`** modify the original array; **`reduce`** always returns a new array.
+
+B. **`map`** and **`filter`** return new arrays; **`reduce`** returns either a new array or a single value.
+
+C. **`map`** and **`filter`** return single values; **`reduce`** modifies the original array.
+
+D. **`map`** and **`filter`** return new arrays; **`reduce`** can only return a single value.
+
+### Correct Answer:
+
+B.

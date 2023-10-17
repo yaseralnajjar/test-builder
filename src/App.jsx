@@ -6,7 +6,14 @@ function parseMarkdownToQuestion(markdown) {
 
   const isHeadline = (line, keyword) => {
     const trimmed = line.trim();
-    const formats = [`## **${keyword}`, `### **${keyword}`, `**${keyword}`];
+    const formats = [
+      `## **${keyword}`,
+      `### **${keyword}`,
+      `**${keyword}`,
+      `## ${keyword}`,
+      `### ${keyword}`,
+      `${keyword}`,
+    ];
 
     // Check if line starts with any of the standard formats:
     // ## **Question**
@@ -25,7 +32,11 @@ function parseMarkdownToQuestion(markdown) {
 
     for (const format of formats) {
       if (trimmed.startsWith(format)) {
-        if (trimmed.endsWith("**") || trimmed.endsWith(":**")) {
+        if (
+          trimmed.endsWith("**") ||
+          trimmed.endsWith(":**") ||
+          trimmed.endsWith(":")
+        ) {
           return true;
         }
 
@@ -57,15 +68,37 @@ function parseMarkdownToQuestion(markdown) {
 
   const getAnswerText = (line) => {
     let strippedLine = line.trim();
-    if (startsWithAnswer(strippedLine)) {
-      const prefixLength = strippedLine.startsWith("**")
-        ? strippedLine[3] === "*"
-          ? 5
-          : 4
-        : 2;
-      strippedLine = strippedLine.slice(prefixLength).trim();
+    const answerPrefixes = [
+      "A.",
+      "B.",
+      "C.",
+      "D.",
+      "E.",
+      "F.",
+      "G.",
+      "H.",
+      "I.",
+      "J.",
+    ];
+
+    for (const prefix of answerPrefixes) {
+      // Check for patterns like "**A.**" or "A." or "**A.** Text"
+      const boldPrefix = `**${prefix}**`;
+      const starPrefix = `**${prefix}`;
+      if (strippedLine.startsWith(boldPrefix)) {
+        strippedLine = strippedLine.slice(boldPrefix.length).trim();
+        break;
+      } else if (strippedLine.startsWith(starPrefix)) {
+        // This handles "**A. Text" pattern
+        strippedLine = strippedLine.slice(starPrefix.length).trim();
+        break;
+      } else if (strippedLine.startsWith(prefix)) {
+        strippedLine = strippedLine.slice(prefix.length).trim();
+        break;
+      }
     }
-    return strippedLine.replace(/^\*\*|\*\*$/g, "").trim(); // Remove bolding if it exists and trim
+
+    return strippedLine;
   };
 
   let parsingState = "none";
